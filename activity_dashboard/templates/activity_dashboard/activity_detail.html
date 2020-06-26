@@ -1,0 +1,319 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load social_share %}
+
+{% if request.user.is_authenticated %}
+
+	{% block title %}{{ run_info.name }}{% endblock %}
+
+	{% block header %}{% include 'partials/_header_detail.html' %}{% endblock %}
+
+	{% block content %}
+    	{% load plotly_dash %}
+    	{% load render_table from django_tables2 %}
+
+		<div class="row"></div>
+		<br>
+		
+		{% include 'partials/_helpbar.html' %}
+		
+		{% if run_info.desc != "" %}
+		<a href="#desc" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="desc">
+			<div class="alert alert-default btn-default stretched-link" role="alert">
+				<span class="alert-icon"><i class="ni ni-single-copy-04"></i></span>
+				<span class="alert-text"><strong>Description</strong></span>
+			</div>
+		</a>
+		
+		<div id="desc" class="row justify-content-md-center">
+			<div class="col col-auto">
+				<div class="card card-stats">
+					<div class="card-body">
+						{{ run_info.desc | safe }}
+					</div>
+				</div>
+			</div>
+		</div>
+		{% endif %}
+				
+		<div class="dropdown-divider"></div>
+		
+		{% if g0 != "" or g2 != "" %}
+		<div class="row justify-content-md-center">	
+			<div class="btn-group btn-group-toggle" data-toggle="buttons">
+				<ul class="nav" role="tablist">
+					{% if g0 != "" or g1 != "" %}
+					<li><label class="btn btn-secondary active nav-item" id="maps-tab" data-toggle="tab" href="#maps" role="tab" aria-controls="tab" aria-selected="true"><i class="alert-icon ni ni-map-big"></i>Maps</label></li>
+					<li><label class="btn btn-secondary nav-item" id="profiles-tab" data-toggle="tab" href="#profiles" role="tab" aria-controls="tab" aria-selected="false"><i class="alert-icon ni ni-sound-wave"></i>Profiles</label></li>
+					{% else %}
+					<li><label class="btn btn-secondary active nav-item" id="profiles-tab" data-toggle="tab" href="#profiles" role="tab" aria-controls="tab" aria-selected="true"><i class="alert-icon ni ni-sound-wave"></i>Profiles</label></li>
+					{% endif %}
+					<li><label class="btn btn-secondary nav-item" id="laps-tab" data-toggle="tab" href="#laps-pane" role="tab" aria-controls="tab" aria-selected="false"><i class="alert-icon ni ni-chart-bar-32"></i>Laps</label></li>
+					{% if athlete.tier == 'free' %}
+					<li><a href="/upgrade"><label class="btn btn-secondary nav-item"><i class="alert-icon ni ni-chart-pie-35"></i>Zones (PRO)</label></a></li>
+					{% else %}
+					<li><label class="btn btn-secondary nav-item" id="zones-tab" data-toggle="tab" href="#zones" role="tab" aria-controls="tab" aria-selected="false"><i class="alert-icon ni ni-chart-pie-35"></i>Zones</label></li>
+					{% endif %}
+				</ul>
+			</div>
+		</div>
+		
+		<div class="tab-content">
+		<div id="maps" class="tab-pane fade show active" role="tabpanel" aria-labelledby="maps-tab">
+			<a href="#map" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="map">
+				<div class="alert alert-default btn-default stretched-link" role="alert">
+					<span class="alert-icon"><i class="ni ni-map-big"></i></span>
+					<span class="alert-text"><strong>Map</strong></span>
+				</div>
+			</a>
+			
+			<div id="map">
+				<div class="row justify-content-md-center">
+					<div class="col col-auto">
+						<div class="card card-stats" style="width: 70rem; height:30rem">
+							<div class="card-body">
+								 {{ g0 | safe }}
+							 </div>
+						 </div>
+					 </div>
+				 </div>
+			 </div>
+
+			<a href="#3d" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="3d">
+				<div class="alert alert-default btn-default stretched-link" role="alert">
+					<span class="alert-icon"><i class="fa fa-cubes"></i></span>
+					<span class="alert-text"><strong>3D Model</strong></span>
+				</div>
+			</a>
+
+			{% if athlete.tier == 'free' %} 
+			<div class="row justify-content-md-center">
+				<div class="col col-auto">
+					<div class="card card-stats" style="width: 70rem; height:30rem">
+						<div class="card-body">
+							<div class="row justify-content-md-center">
+							<p class="alert-text card-blockquote">Upgrade to PRO to view an interactive 3D model of your run!</p>
+							</div>
+							<div class="row justify-content-md-center">
+							<a href="/upgrade"><button type="button" class="btn btn-lg btn-warning mb-3"><i class="alert-icon fa fa-bolt"></i><p class="text-lg my-1">Upgrade to PRO</p></button></a>
+							</div>
+						</div>
+					</div>
+				 </div>
+			 </div>
+			{% else %}
+			<div id="3d">
+				<div class="row justify-content-md-center">
+					<div class="col col-auto">
+						<div class="card card-stats" style="width: 70rem; height:30rem">
+							<div class="card-body">
+								{{ g1 | safe}}
+							</div>
+						</div>
+					 </div>
+				 </div>
+			</div>
+			{% endif %}
+		</div>
+		
+		{% if g0 == "" and g2 == "" %}
+		<div id="profiles" class="tab-pane fade show active" role="tabpanel" aria-labelledby="profiles-tab">
+			<a href="#profile" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="profile">
+				<div class="alert alert-default btn-default stretched-link" role="alert">
+					<span class="alert-icon"><i class="ni ni-sound-wave"></i></span>
+					<span class="alert-text"><strong>Profiles</strong></span>
+				</div>
+			</a>
+			
+			<div id="profile">
+				<div class="alert alert-primary alert-dismissible fade show" role="alert">
+					<span class="alert-icon"><i class="ni ni-air-baloon"></i></span>
+					<span class="alert-text"><strong>Hint:</strong> Drag axes to shift data, click + drag to zoom, double click to reset axes, click legend items to show/hide data</span>
+					<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				
+				<div class="row justify-content-md-center">
+					<div class="col col-auto">
+						<div class="card card-stats" style="width: 70rem; height:30rem">
+							<div class="card-body">
+								{{ g2 | safe }}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		{% else %}
+		<div id="profiles" class="tab-pane fade" role="tabpanel" aria-labelledby="profiles-tab">
+			<a href="#profile" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="profile">
+				<div class="alert alert-default btn-default stretched-link" role="alert">
+					<span class="alert-icon"><i class="ni ni-sound-wave"></i></span>
+					<span class="alert-text"><strong>Profiles</strong></span>
+				</div>
+			</a>
+			
+			<div id="profile">
+				<div class="alert alert-primary alert-dismissible fade show" role="alert">
+					<span class="alert-icon"><i class="ni ni-air-baloon"></i></span>
+					<span class="alert-text"><strong>Hint:</strong> Drag axes to shift data, click + drag to zoom, double click to reset axes, click legend items to show/hide data</span>
+					<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				
+				<div class="row justify-content-md-center">
+					<div class="col col-auto">
+						<div class="card card-stats" style="width: 70rem; height:30rem">
+							<div class="card-body">
+								{{ g2 | safe }}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		{% endif %}
+		
+		<div id="laps-pane" class="tab-pane fade" role="tabpanel" aria-labelledby="laps-tab">
+			<a href="#laps" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="laps">
+				<div class="alert alert-default btn-default stretched-link" role="alert">
+					<span class="alert-icon"><i class="ni ni-chart-bar-32"></i></span>
+					<span class="alert-text"><strong>Laps</strong></span>
+				</div>
+			</a>
+			
+			<div id="laps" class="row justify-content-md-center">	
+				<div class="btn-group btn-group-toggle" data-toggle="buttons">
+					<ul class="nav" role="tablist">
+						<li><label class="btn btn-secondary active nav-item" id="auto-tab" data-toggle="tab" href="#auto" role="tab" aria-controls="tab" aria-selected="true">Auto Laps</label></li>
+						<li><label class="btn btn-secondary nav-item" id="device-tab" data-toggle="tab" href="#device" role="tab" aria-controls="time" aria-selected="false">Device Laps</label></li>
+					</ul>
+				</div>
+			</div>
+			
+			<div id="laps">
+				<div class="tab-content">
+					<div class="tab-pane fade show active" id="auto" role="tabpanel" aria-labelledby="auto-tab">
+						<div class="row justify-content-md-center">
+							<div class="col col-auto">
+								<div class="card card-stats" style="width: 35rem; height:30rem">
+									<div class="card-body">
+										 {{ g3 | safe }}
+									 </div>
+								 </div>
+							 </div>
+							 <div clas="col col-auto">
+								<div class="card card-stats bg-default" style="width: 35rem; height:30rem">
+									<div class="card-body">
+										<div class="table" style="width: 32rem; height:29rem">
+											<table id="auto_lap_table" class="table table-hover table-dark table-striped table-borderless">
+												<thead class="thead-dark">
+												  <th data-field="lap"><b>Lap</b></th>
+												  <th data-field="distance"><b>Dist</b></th>
+												  <th data-field="Time"><b>Time</b></th>
+												  <th data-field="pace"><b>Pace</b></th>
+												  <th data-field="gap"><b>GAP</b></th>
+												  <th data-field="gain"><b>Total<br>Gain</b></th>
+												  <th data-field="elev_change"><b>Elev<br>Change</b></th>
+												  <th data-field="avg_grade"><b>Avg<br>Grade</b></th>
+												  <th data-field="min_elev"><b>Min<br>Elev</b></th>
+												  <th data-field="max_elev"><b>Max<br>Elev</b></th>
+												  <th data-field="intensity"><b>Intensity</b></th>
+												</thead>
+												{{ auto_table | safe}}
+											</table>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="tab-pane fade show" id="device" role="tabpanel" aria-labelledby="device-tab">
+						<div class="row justify-content-md-center">
+							<div class="col col-auto">
+								<div class="card card-stats" style="width: 35rem; height:30rem">
+									<div class="card-body">
+										 {{ g4 | safe }}
+									</div>
+								</div>
+							</div>
+							<div clas="col col-auto">
+								<div class="card card-stats bg-default" style="width: 35rem; height:30rem">
+									<div class="card-body">
+										<div class="table" style="width: 32rem; height:29rem">
+											<table id="auto_lap_table" class="table table-hover table-dark table-striped table-borderless">
+												<thead class="thead-dark">
+												  <th data-field="lap"><b>Lap</b></th>
+												  <th data-field="distance"><b>Dist</b></th>
+												  <th data-field="Time"><b>Time</b></th>
+												  <th data-field="pace"><b>Pace</b></th>
+												  <th data-field="gap"><b>GAP</b></th>
+												  <th data-field="gain"><b>Total<br>Gain</b></th>
+												  <th data-field="elev_change"><b>Elev<br>Change</b></th>
+												  <th data-field="avg_grade"><b>Avg<br>Grade</b></th>
+												  <th data-field="min_elev"><b>Min<br>Elev</b></th>
+												  <th data-field="max_elev"><b>Max<br>Elev</b></th>												  
+												  <th data-field="intensity"><b>Intensity</b></th>
+												</thead>
+												{{ device_table | safe}}
+											</table>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div id="zones" class="tab-pane fade" role="tabpanel" aria-labelledby="zones-tab">
+			<a href="#paces" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="paces">
+				<div class="alert alert-default btn-default stretched-link" role="alert">
+					<span class="alert-icon"><i class="ni ni-chart-pie-35"></i></span>
+					<span class="alert-text"><strong>Pace Zones</strong></span>
+				</div>
+			</a>
+			
+			<div id="paces">	
+				<div class="row justify-content-md-center">
+					<div class="col col-auto">
+						<div class="card card-stats" style="width: 70rem; height:30rem">
+							<div class="card-body">
+								{{ g5 | safe }}									
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<a href="#zones_dist" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="zones_dist">
+				<div class="alert alert-default btn-default stretched-link" role="alert">
+					<span class="alert-icon"><i class="ni ni-chart-pie-35"></i></span>
+					<span class="alert-text"><strong>Grade Zones</strong></span>
+				</div>
+			</a>
+			
+			<div id="zones_dist">	
+				<div class="row justify-content-md-center">
+					<div class="col col-auto">
+						<div class="card card-stats" style="width: 70rem; height:30rem">
+							<div class="card-body">
+								{{ g6 | safe }}									
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		</div>
+		{% endif %}
+		
+	<div class="dropdown-divider"></div>
+
+    {% endblock %}
+{% else %}
+    <a href="/login">Please Login</a>
+{% endif %}

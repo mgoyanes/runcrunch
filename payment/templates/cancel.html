@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}RunCrunch - Cancel{% endblock %}
+
+{% block content %}
+
+	<div class="row"></div>
+	<br>
+
+	{% if cancelled %}
+	<div class="alert alert-warning" role="alert">
+		<span class="alert-icon"><i class="ni ni-bell-55"></i></span>
+		<span class="alert-text">You have already cancelled your subscription. It will expire on {{ expiration }}. Your account will remain PRO until then.</span>
+	</div>
+
+	<div class="row justify-content-center">
+		<a href="/dashboard"><button type="button" class="btn btn-block btn-outline-primary">Back to Dashboard</button></a>
+	</div>
+	{% else %}
+	<div class="alert alert-warning" role="alert">
+		<span class="alert-icon"><i class="ni ni-bell-55"></i></span>
+		<span class="alert-text"><strong>Attention: </strong> You have paid until {{ expiration }}. Your account will remain PRO until then.</span>
+	</div>
+
+	<div class="row justify-content-center">
+		<a href="/cancelled/{{ expiration }}"><button type="button" class="btn btn-block btn-outline-danger">Cancel Subscription</button></a>
+	</div>
+	{% endif %}
+	
+{% endblock %}

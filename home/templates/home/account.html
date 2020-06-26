@@ -1,0 +1,365 @@
+{% extends 'base.html' %}
+
+	{% block title %}RunCrunch - My Account{% endblock %}
+	{% block content %}
+	{% load crispy_forms_tags %}
+	
+	<div class="row"></div>
+		<br>
+		
+	{% if error == True %}
+	<div class="row justify-content-md-center">
+		<span class="text-center"><b>There was an error importing your activities, Strava may be blocking import requests. Please try again later.</b></span>
+		<br>
+		<br>
+	</div>
+	<div class="row justify-content-md-center">
+		<a href="/account"><button type="button" class="btn btn-lg btn-warning mb-3" data-toggle="modal" data-target="#import">Return to Profile</button></a>
+	</div>
+	
+	{% else %}
+		
+	{% if athlete != '' %}
+	<a href="#lifetime-totals" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="lifetime-totals">
+			<div class="alert alert-default btn-default bg-gradient-warning stretched-link" role="alert" style="border:0px">
+				<span class="alert-icon"><i class="ni ni-chart-bar-32"></i></span>
+				<span class="alert-text"><strong>Lifetime Totals</strong></span>
+			</div>
+	</a>
+
+    <div id="lifetime-totals" class="row justify-content-md-center">
+		<div class="col-auto">
+			<div class="card card-stats">
+				<div class="card-body">
+					<div class="row">
+						<div class="col">
+							<h5 class="card-title text-uppercase text-muted mb-0">Distance</h5>
+							<span class="h2 font-weight-bold mb-0">{{ dist }}</span>
+						</div>
+						<div class="col-auto">
+						  <div class="icon icon-shape bg-gradient-green text-white rounded-circle shadow">
+							<i class="ni ni-square-pin"></i>
+						  </div>
+						</div>
+					</div>
+					<p class="mt-3 mb-0 text-sm">
+						<span class="text-nowrap">{{ dist_fun }}</span>
+					</p>
+				</div>
+			</div>
+		</div>
+		<div class="col-auto">
+		<div class="card card-stats">
+				<div class="card-body">
+					<div class="row">
+						<div class="col">
+							<h5 class="card-title text-uppercase text-muted mb-0">Time</h5>
+							<span class="h2 font-weight-bold mb-0">{{ time }}</span>
+						</div>
+						<div class="col-auto">
+						  <div class="icon icon-shape bg-gradient-primary text-white rounded-circle shadow">
+							 <i class="fa fa-clock-o"></i>
+						  </div>
+						</div>
+					</div>
+					<p class="mt-3 mb-0 text-sm">
+						<span class="text-nowrap">{{ time_fun }}</span>
+					</p>
+				</div>
+			</div>
+		</div>
+		<div class="col-auto">
+		<div class="card card-stats">
+				<div class="card-body">
+					<div class="row">
+						<div class="col">
+							<h5 class="card-title text-uppercase text-muted mb-0">Elevation Gain</h5>
+							<span class="h2 font-weight-bold mb-0">{{ elev }}</span>
+						</div>
+						<div class="col-auto">
+						  <div class="icon icon-shape bg-gradient-warning text-white rounded-circle shadow">
+							<i class="ni ni-image"></i>
+						  </div>
+						</div>
+					</div>
+					<p class="mt-3 mb-0 text-sm">
+						<span class="text-nowrap">{{ elev_fun }}</span>
+					</p>
+				</div>
+			</div>
+		</div>
+		<div class="col-auto">
+			<div class="card card-stats">
+					<div class="card-body">
+						<div class="row">
+							<div class="col">
+								<h5 class="card-title text-uppercase text-muted mb-0">Activities</h5>
+								<span class="h2 font-weight-bold mb-0">{{ count }}</span>
+							</div>
+							<div class="col-auto">
+							  <div class="icon icon-shape bg-gradient-danger text-white rounded-circle shadow">
+								<i class="ni ni-trophy"></i>
+							  </div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	<div class="alert alert-default btn-default bg-gradient-warning stretched-link" role="alert" style="border:0px">
+		<span class="alert-icon"><i class="ni ni-watch-time"></i></span>
+		<span class="alert-text"><strong>Current Best Effort:</strong></span>
+		<span class="alert-text" style="padding-left:2%">{{ be_time }} for {{ be_dist }}m ({{ be_km }}km, {{ be_mi }} mi)</span>
+	</div>
+	{% if be_time == '00:06:30' and be_mi == 1.0 %}
+		<div class="alert alert-default btn-default bg-danger stretched-link" role="alert" style="border:0px">
+			<span class="alert-icon"><i class="ni ni-watch-time"></i></span>
+			<span class="alert-text"><strong>WARNING! YOUR DEFAULT PR IS 6:30 FOR 1 MILE (1.6 KM), UPDATE THIS BEFORE IMPORTING YOUR ACTIVITIES</strong></span>
+		</div>
+	{% endif %}
+	<div class="row justify-content-md-center">
+		<div class="col-md-4">
+		  <button type="button" class="btn btn-block btn-primary mb-3" data-toggle="modal" data-target="#set-pr">Update Best Effort</button>
+		  <div class="modal fade pl-9" id="set-pr" tabindex="-1" role="dialog" aria-labelledby="modal-default" aria-hidden="true">
+			<div class="modal-dialog modal- modal-dialog-centered modal- pl-9" role="document">
+				<div class="modal-content" style="max-width:600px">
+					
+					<div class="modal-header">
+						<h6 class="modal-title" id="modal-title-default">Set a Recent Best Effort</h6>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">×</span>
+						</button>
+					</div>
+					
+					<div class="modal-body">
+						<form method="post" class="form-group">
+							{% csrf_token %}
+							<span>Time:</span>
+							<div class="input-group input-group-merge">
+								{{ pr_form.h }}
+								<div class="input-group-prepend">
+									<span class="input-group-text">:</span>
+								</div>
+								{{ pr_form.m }}
+								<div class="input-group-prepend">
+									<span class="input-group-text">:</span>
+								</div>
+								{{ pr_form.s }}
+							</div>
+
+							<span>Distance:</span>
+							<div class="input-group">
+								{{ pr_form.distance }}
+								<div class="input-group-append">
+									{{ pr_form.unit }}
+									<!--<span class="input-group-text">meters</span>-->
+								</div>
+							</div>
+							<div class="text-center text-muted mb-4">
+								<span><small>Best effort information is used to calculate intensity metrics for your activities.</small></span>
+							</div>	
+							<div class="justify-content-center modal-footer">
+								<button type="submit" name="pr_sub" class="btn btn-primary">Save changes</button>	
+							</div>
+							</form>
+						</div>
+
+					</div>
+					
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="alert alert-default btn-default bg-gradient-warning stretched-link" role="alert" style="border:0px">
+		<span class="alert-icon"><i class="ni ni-ruler-pencil"></i></span>
+		<span class="alert-text"><strong>Current Unit Preference:</strong></span>
+		<span class="alert-text" style="padding-left:2%">{% if athlete.unit == 'imperial' %} Imperial (miles, feet) {% else %} Metric (kilometers, meters) {% endif %}</span>
+	</div>
+	<div class="row justify-content-md-center">
+		<div class="col-md-4">
+		  <button type="button" class="btn btn-block btn-primary mb-3" data-toggle="modal" data-target="#set-unit">Change Unit Preference</button>
+		  <div class="modal fade pl-9" id="set-unit" tabindex="-1" role="dialog" aria-labelledby="modal-default" aria-hidden="true">
+			<div class="modal-dialog modal- modal-dialog-centered modal- pl-9" role="document">
+				<div class="modal-content" style="max-width:600px">
+					
+					<div class="modal-header">
+						<h6 class="modal-title" id="modal-title-default">Change Unit Preference</h6>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">×</span>
+						</button>
+					</div>
+					
+					<form action="" method="POST" class="form-group">
+						<div class="modal-body">
+							{% csrf_token %}
+							<div class="btn-group btn-group-toggle" data-toggle="buttons">
+								{% for radio in unit_preference.metric %}
+									<label for="{{ radio.choice_label }}" class="btn btn-secondary {% if athlete.unit in radio.choice_label %} active {% endif %}">
+										{{ radio.choice_label }}
+										{{ radio.tag }}
+									</label>
+								{% endfor %}
+							</div>
+						</div>
+						<div class="justify-content-center modal-footer">
+							<button type="submit" name="unit_sub" class="btn btn-primary">Update Preference</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	</div>
+	
+	<div class="dropdown-divider"></div>
+	
+	<div class="row justify-content-md-center">
+		{% if athlete == '' %}
+		<div class="col-auto">
+			<button type="button" class="btn btn-block" data-toggle="modal" data-target="#connect-to-strava" style="display:inline-block;background-color:#FC5200;color:#fff;font-size:16px;font-family:Helvetica, Arial, sans-serif;white-space:nowrap;text-decoration:none;text-align:center;background-repeat:no-repeat;background-position:135px center;border-radius:3px;background-image:url('http://badges.strava.com/logo-strava-echelon.png')" target="_clean" width="10">Connect with <img src="http://badges.strava.com/logo-strava.png" alt="Strava" style="margin-left:20px;margin-top:0px;vertical-align:text-middle" height="16" width="60"></button>
+		</div>
+		{% endif %}
+		<div class="col-auto">
+		  {% if athlete.tier == 'free' %}
+		  <a href="/upgrade"><button type="button" class="btn btn-lg btn-warning mb-3 disabled">Import Activities (PRO)</button></a>
+		  {% elif athlete.imported == 'N' %}
+		  <button type="button" class="btn btn-lg btn-warning mb-3" data-toggle="modal" data-target="#import">Import Activities</button>
+		  {% else %}
+		  <button type="button" class="btn btn-lg btn-warning mb-3 disabled">Import Activities</button>
+		  {% endif %}
+		  <div class="modal fade pl-9" id="import" tabindex="-1" role="dialog" aria-labelledby="modal-default" aria-hidden="true">
+			<div class="modal-dialog modal- modal-dialog-centered modal- pl-9" role="document">
+				<div class="modal-content" style="max-width:600px">
+					
+					<div class="modal-header">
+						<h6 class="modal-title" id="modal-title-default">Import Activities</h6>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">×</span>
+						</button>
+					</div>
+				
+					<div class="modal-body">
+						<p class="card-blockquote text-darker text-lg-center"><b>Importing your activities will take a few moments. Please do not close this browser or tab.</b></p> 
+						<p class="small text-center">Note: Due to my current rate limits, a maximum of 2,000 activities will be imported. If you have more, please <a href="mailto:runcrunch.contact@gmail.com" target="_blank">contact me</a>.</p>
+					</div>
+					<div class="justify-content-center modal-footer">
+						<form action="" method="POST" class="form-group">
+							{% csrf_token %}
+							{{ import_form }}
+							<button class="btn btn-block btn-primary" type="submit" name="import_runs" class="btn btn-primary">Import</button>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-auto">
+		  <button type="button" class="btn btn-lg btn-warning mb-3" data-toggle="modal" data-target="#email">Set Recovery Email</button>
+		  <div class="modal fade pl-9" id="email" tabindex="-1" role="dialog" aria-labelledby="modal-default" aria-hidden="true">
+			<div class="modal-dialog modal- modal-dialog-centered modal- pl-9" role="document">
+				<div class="modal-content" style="max-width:600px">
+					
+					<div class="modal-header">
+						<h6 class="modal-title" id="modal-title-default">Set Recovery Email</h6>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">×</span>
+						</button>
+					</div>
+					
+					<form action="" method="POST" class="form-group">
+						<div class="modal-body">
+							<span class="text-center">In case you forget your password, set an email address below so you can recover your account. </span>
+							<br><br>
+							<span class="text-center">We will not send any emails for any other purpose. You may update this address as often as you'd like.</span>
+							{% csrf_token %}
+							<div class="row justify-content-center" style="margin-top: 10%">
+							{{ email_form | crispy }}
+							</div>
+						</div>
+						<div class="justify-content-center modal-footer">
+							<button type="submit" name="email_sub" class="btn btn-primary">Update</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	</div>
+	
+	{% if athlete == '' %}
+	<div class="modal show pl-9" id="connect-to-strava" tabindex="-1" role="dialog" aria-hidden="false">
+		<div class="modal-dialog modal- modal-dialog-centered modal- pl-9" role="document">
+			<div class="modal-content" style="max-width:500px">
+			  <div class="modal-header">
+				<h5 class="modal-title" id="exampleModalLabel">Connect with Strava</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				  <span aria-hidden="true">&times;</span>
+				</button>
+			  </div>
+			  <div class="modal-body">
+				<div class="row justify-content-md-center">
+					<span class="text-center"><b>Welcome to RunCrunch! Before you get started, please connect to Strava.</b></span>
+					<br><br>
+					<span class="text-center">Click below to connect your account to Strava</span>
+					<br><br>
+					<span class="text-center"><b>You will be taken back to this page after. If you want to import historical data, click "Import My Runs", otherwise your runs will display on your dashboard as they are uploaded to Strava.</b></span>
+					<br>
+				</div>
+				<div class="row justify-content-md-center">
+					<a href="https://www.strava.com/oauth/authorize?client_id=46859&redirect_uri=http%3A%2F%2Fwww.run-crunch.com%2Fdashboard%2Fconnect-to-strava&approval_prompt=auto&response_type=code&scope=activity%3Aread%2Cactivity%3Aread_all"><button type="button" class="btn" style="margin-top:10%;display:inline-block;background-color:#FC5200;color:#fff;font-size:16px;font-family:Helvetica, Arial, sans-serif;white-space:nowrap;text-decoration:none;text-align:center;background-repeat:no-repeat;background-position:135px center;border-radius:3px;background-image:url('http://badges.strava.com/logo-strava-echelon.png')" width="10">Connect with <img src="http://badges.strava.com/logo-strava.png" alt="Strava" style="margin-left:20px;margin-top:0px;vertical-align:text-middle" height="16" width="60"></button></a>
+				</div>
+			  </div>
+
+			</div>
+		</div>
+	</div>
+	{% endif %}
+	
+	<div class="dropdown-divider"></div>
+	
+	<div class="row justify-content-md-center">
+			<div class="col col-auto">
+				<button type="button" class="btn btn-outline-danger mb-3" data-toggle="modal" data-target="#delete">Delete Account</button>
+			</div>
+			{% if athlete.tier == 'pro' %}
+			<div class="col col-auto">
+				<a href="/cancel"><button type="button" class="btn btn-outline-danger mb-3">Cancel Subscription</button></a>
+			</div>
+			{% endif %}
+	</div>
+	
+	<div class="modal fade pl-9" id="delete" tabindex="-1" role="dialog" aria-labelledby="delete" aria-hidden="true">
+		<div class="modal-dialog modal-danger modal-dialog-centered modal- pl-9" role="document">
+			<div class="modal-content bg-gradient-danger">
+				
+				<div class="modal-header">
+					<h6 class="modal-title" id="modal-title-notification"></h6>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">×</span>
+					</button>
+				</div>
+				
+				<div class="modal-body">
+					
+					<div class="py-3 text-center">
+						<i class="ni ni-bell-55 ni-3x"></i>
+						<h4 class="heading mt-4">You are about to delete your account!</h4>
+						<span>All your data will be deleted and unrecoverable. Are you sure you want to continue?</span>
+					</div>
+					
+				</div>
+				
+				<div class="modal-footer">
+					<a href="/delete"><button href="/delete" type="button" class="btn btn-danger">Delete Account</button></a>
+					<button type="button" class="btn btn-white" data-dismiss="modal">Nevermind</button>
+				</div>
+				
+			</div>
+		</div>
+	</div>
+	{% endif %}
+	{% endif %}
+
+	{% endblock %}

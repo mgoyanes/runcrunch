@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% if request.user.is_authenticated %}
+
+	{% block title %}RunCrunch - Dashboard{% endblock %}
+	
+	{% block sidebar %}{% endblock %}
+	
+	{% block header %}{% include 'partials/_last7.html' %}{% endblock %}
+	
+    {% block content %}
+    	{% load plotly_dash %}
+    	{% load render_table from django_tables2 %}
+		
+		<div class="row"></div>
+		<br>
+				
+		<div class="row justify-content-md-center">	
+			<div class="btn-group btn-group-toggle" data-toggle="buttons">
+				<ul class="nav" role="tablist">
+					<li><label class="btn btn-secondary active nav-item" id="dist-tab" data-toggle="tab" href="#dist" role="tab" aria-controls="tab" aria-selected="true">Distance</label></li>
+					<li><label class="btn btn-secondary nav-item" id="time-tab" data-toggle="tab" href="#time" role="tab" aria-controls="tab" aria-selected="false">Time</label></li>
+					<li><label class="btn btn-secondary nav-item" id="elev-tab" data-toggle="tab" href="#elev" role="tab" aria-controls="tab" aria-selected="false">Elevation</label></li>
+					<li><label class="btn btn-secondary nav-item" id="pace-tab" data-toggle="tab" href="#pace" role="tab" aria-controls="tab" aria-selected="false">Pace</label></li>
+					<li><label class="btn btn-secondary nav-item" id="hr-tab" data-toggle="tab" href="#hr" role="tab" aria-controls="tab" aria-selected="false">Heartrate</label></li>
+					<li><label class="btn btn-secondary nav-item" id="intensity-tab" data-toggle="tab" href="#intensity" role="tab" aria-controls="tab" aria-selected="false">Intensity</label></li>
+					<li><label class="btn btn-secondary nav-item" id="ach-tab" data-toggle="tab" href="#ach" role="tab" aria-controls="tab" aria-selected="false">Achievements</label></li>
+					<li><label class="btn btn-secondary nav-item" id="kudos-tab" data-toggle="tab" href="#kudos" role="tab" aria-controls="tab" aria-selected="false">Kudos</label></li>
+					<li><label class="btn btn-secondary nav-item" id="schedule-tab" data-toggle="tab" href="#schedule" role="tab" aria-controls="tab" aria-selected="false">Schedule</label></li>
+				</ul>
+			</div>
+		</div>
+
+
+		<div class="col col-xl">
+			<div class="card card-stats">
+				<div class="card-body">
+					<div class="tab-content">
+						<div id="dist" class="tab-pane fade show active" role="tabpanel" aria-labelledby="dist-tab">
+							{{ g0 | safe }}						
+						</div>
+						<div id="time" class="tab-pane fade" role="tabpanel" aria-labelledby="time-tab">
+							{{ g1 | safe }}						
+						</div>
+						<div id="elev" class="tab-pane fade" role="tabpanel" aria-labelledby="elev-tab">
+							{{ g2 | safe }}						
+						</div>
+						<div id="pace" class="tab-pane fade" role="tabpanel" aria-labelledby="pace-tab">
+							{{ g3 | safe }}						
+						</div>
+						<div id="hr" class="tab-pane fade" role="tabpanel" aria-labelledby="hr-tab">
+							{{ g4 | safe }}						
+						</div>
+						<div id="intensity" class="tab-pane fade" role="tabpanel" aria-labelledby="intensity-tab">
+							{{ g5 | safe }}						
+						</div>
+						<div id="ach" class="tab-pane fade" role="tabpanel" aria-labelledby="ach-tab">
+							{{ g6 | safe }}						
+						</div>
+						<div id="kudos" class="tab-pane fade" role="tabpanel" aria-labelledby="kudos-tab">
+							{{ g7 | safe }}						
+						</div>
+						<div id="schedule" class="tab-pane fade" role="tabpanel" aria-labelledby="schedule-tab">
+							{{ g8 | safe }}						
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		{% if activities_table != "" %}
+		<div class="alert alert-default" role="alert">
+			<span class="alert-icon"><i class="ni ni-bullet-list-67"></i></span>
+			<span class="alert-text"><strong>Activity List</strong></span>
+		</div>
+		
+		<div class="row justify-content-md-center">
+			<div class="col col-auto">
+				<div class="card card-stats">
+					<div class="card-body">
+							<table id="activities" class="table table-hover table-striped table-responsive">
+								<thead class="thead-dark">
+								  <th data-field="date">Date</th>
+								  <th data-field="name">Name</th>
+								  <th data-field="distance">Distance</th>
+								  <th data-field="time">Time</th>
+								  <th data-field="pace">Pace</th>
+								  <th data-field="elevation">Elevation</th>
+								  <th data-field="avg_hr">Average<br>Heartrate</th>
+								  <th data-field="achievement_count">Achievement<br>Count</th>
+								  <th data-field="kudos_count">Kudos<br>Count</th>
+								</thead>
+								{{ g9 | safe }}
+							</table>
+					</div>
+				</div>
+			</div>
+		</div>
+					
+		{% endif %}
+
+	<div class="dropdown-divider"></div>
+
+    {% endblock %}
+	
+	{% block scripts %}
+		<script>
+			$(document).ready( function () {
+				$('#activities').DataTable({
+					paging: true,
+					searching: true,
+					ordering:  true,
+					order: [],
+					columnDefs: [
+					   { type: 'any-number', targets : [2, 5] },
+					   { type: 'time-uni', targets : 3 }
+					]
+				});
+				$('#activities_wrapper .dataTables_filter').find('label').find('input').addClass('form-control form-control-sm');
+				$('#activities_wrapper .dataTables_filter').find('label').addClass('form-check-inline');
+				$('#activities_wrapper .dataTables_length').find('label').find('select').addClass('form-control-flush');
+				$('#activities_wrapper .dataTables_paginate').find('span').each(function() {
+					const $this = $(this);
+					this.removeClass("current page-link");
+					this.removeClass("paginate_button");
+					this.addClass("page-link")
+				});
+				$('#activities_wrapper .dataTables_paginate').addClass("pagination");
+			} );
+			
+			_anyNumberSort = function(a, b, high) {
+				var reg = /[+-]?((\d+(\.\d*)?)|\.\d+)([eE][+-]?[0-9]+)?/;       
+				a = a.replace(',','.').match(reg);
+				a = a !== null ? parseFloat(a[0]) : high;
+				b = b.replace(',','.').match(reg);
+				b = b !== null ? parseFloat(b[0]) : high;
+				return ((a < b) ? -1 : ((a > b) ? 1 : 0));   
+			}
+			 
+			jQuery.extend( jQuery.fn.dataTableExt.oSort, {
+				"any-number-asc": function (a, b) {
+					return _anyNumberSort(a, b, Number.POSITIVE_INFINITY);
+				},
+				"any-number-desc": function (a, b) {
+					return _anyNumberSort(a, b, Number.NEGATIVE_INFINITY) * -1;
+				},
+				"time-uni-pre": function (a) {
+					var uniTime;
+			 
+					if (a.toLowerCase().indexOf("am") > -1 || (a.toLowerCase().indexOf("pm") > -1 && Number(a.split(":")[0]) === 12)) {
+						uniTime = a.toLowerCase().split("pm")[0].split("am")[0];
+						while (uniTime.indexOf(":") > -1) {
+							uniTime = uniTime.replace(":", "");
+						}
+					} else if (a.toLowerCase().indexOf("pm") > -1 || (a.toLowerCase().indexOf("am") > -1 && Number(a.split(":")[0]) === 12)) {
+						uniTime = Number(a.split(":")[0]) + 12;
+						var leftTime = a.toLowerCase().split("pm")[0].split("am")[0].split(":");
+						for (var i = 1; i < leftTime.length; i++) {
+							uniTime = uniTime + leftTime[i].trim().toString();
+						}
+					} else {
+						uniTime = a.replace(":", "");
+						while (uniTime.indexOf(":") > -1) {
+							uniTime = uniTime.replace(":", "");
+						}
+					}
+					return Number(uniTime);
+				},
+			 
+				"time-uni-asc": function (a, b) {
+					return ((a < b) ? -1 : ((a > b) ? 1 : 0));
+				},
+			 
+				"time-uni-desc": function (a, b) {
+					return ((a < b) ? 1 : ((a > b) ? -1 : 0));
+				}
+				
+			});
+		</script>
+	{% endblock %}
+	
+{% else %}
+    <a href="/login">Please Login</a>
+{% endif %}

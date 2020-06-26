@@ -1,0 +1,37 @@
+{% load static %}
+{% load crispy_forms_tags %}
+
+<div class="modal fade" id="login" tabindex="-1" role="dialog" aria-labelledby="login" aria-hidden="true">
+	<div class="modal-dialog modal- modal-dialog-centered modal-sm" role="document">
+		<div class="modal-content">
+			<div class="modal-body p-0">
+				<!--
+				<div class="card bg-secondary border-0 mb-0">
+					<div class="card-header bg-transparent pb-5">
+						<div class="text-muted text-center mt-2 mb-3"><small>Sign in with</small></div>
+							<a href="#" class="btn btn-neutral btn-icon">
+								<span class="btn-inner--icon"><img src="../../assets/img/icons/common/google.svg"></span>
+								<span class="btn-inner--text">Google</span>
+							</a>
+					</div>							  
+				</div>-->
+				
+				<div class="card-body px-lg-5 py-lg-5">
+					<form method="post" class="form-group">
+						{% csrf_token %}
+						{{ login | crispy }}
+
+						<input type="hidden" name="user" value="{{ response.user }}"></input>
+
+						<button type="submit" class="btn btn-success">Login</button>
+					</form>
+				
+					<div class="text-center text-muted mb-4">
+						<small>Don't have an account? Create one <a href="/register">here</a></small>
+						<small><a href="/password_reset">Forgot password?</a></small>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

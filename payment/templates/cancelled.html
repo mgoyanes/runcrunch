@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}RunCrunch - Cancelled{% endblock %}
+
+{% block content %}
+
+	<div class="row"></div>
+	<br>
+
+	<div class="alert alert-primary" role="alert">
+		<span class="alert-icon"><i class="ni ni-bell-55"></i></span>
+		<span class="alert-text">Your subscription has been successfully cancelled.</span>
+	</div>
+
+	<div class="row justify-content-center">
+		<a href="/dashboard"><button type="button" class="btn btn-block btn-outline-primary">Back to Dashboard</button></a>
+	</div>
+	
+{% endblock %}

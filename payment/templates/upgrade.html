@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}RunCrunch - PRO{% endblock %}
+
+{% block head %}
+<script src="https://js.stripe.com/v3/"></script>
+{% endblock %}
+
+{% block content %}
+
+	<!-- Stripe CSS -->
+	<style type="text/css">
+		.StripeElement {
+		  box-sizing: border-box;
+
+		  height: 40px;
+		  width: 500px;
+
+		  padding: 10px 12px;
+
+		  border: 1px solid transparent;
+		  border-radius: 4px;
+		  background-color: white;
+
+		  box-shadow: 0 1px 3px 0 #e6ebf1;
+		  -webkit-transition: box-shadow 150ms ease;
+		  transition: box-shadow 150ms ease;
+		}
+
+		.StripeElement--focus {
+		  box-shadow: 0 1px 3px 0 #cfd7df;
+		}
+
+		.StripeElement--invalid {
+		  border-color: #fa755a;
+		}
+
+		.StripeElement--webkit-autofill {
+		  background-color: #fefde5 !important;
+		}
+	</style>
+
+	<script src="https://js.stripe.com/v3/"></script>
+	
+	<div class="row"></div>
+	<br>
+	
+	{% if success == False %}
+	<div class="alert alert-warning" role="alert">
+		<span class="alert-icon"><i class="ni ni-bell-55"></i></span>
+		<span class="alert-text"><strong>Oops!</strong> Your payment was invalid, please try again.</span>
+	</div>
+	{% else %}
+	<div class="alert alert-primary" role="alert">
+		<span class="alert-icon"><i class="ni ni-satisfied"></i></span>
+		<span class="alert-text">Help support RunCrunch by upgrading to PRO. Details on perks below.</span>
+	</div>
+	{% endif %}
+	
+	<!-- Display a payment form -->
+	<div class="row justify-content-center">
+		<div class="col-md">
+			<div class="card card-stats">
+				<div class="card-body">
+					<div class="row justify-content-center">
+						<form action="{% url 'subscribe' %}" method="post" id="payment-form">
+							{% csrf_token %}
+							<input type="hidden" name="user" value="{{ request.user }}"></input>
+								<div class="input-group input-group-merge form-row">
+									<div class="input-group-prepend">
+										<span class="input-group-text" id="basic-addon1">Email</span>
+									</div>
+									<input type="email" required class="form-control" name="email"></input>
+								</div>
+								<div class="form-row">
+									<select class="form-control" id="plan" name="plan" form="payment-form" required>
+									  <option id="month" name="month">$1.99 /month</option>
+									  <option id="year" name="year">$19.99 /year</option>
+									</select>
+								</div>
+
+								
+								<div class="form-row" style="margin-top: 5%">
+									<div class="input-group-prepend">
+										<span class="input-group-text text-sm" id="basic-addon1">Credit or Debit card</span>
+									</div>
+									<div id="card-element">									
+
+									</div>
+
+									<div id="card-errors" role="alert"></div>
+								</div>
+
+						  <button class="btn btn-outline-primary" style="margin-top: 5%">Subscribe</button>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<!-- Stripe JS -->
+	<script>
+		// Create a Stripe client.
+		var stripe = Stripe('pk_live_z1sPeJjQcW88Z2yLfYtjhlr0000Zj1LTM5');
+		//var stripe = Stripe('pk_test_51GtJSTB1V92AxtqIsiOt5W47ugipBSl25nh62sZbGXGEnfFvUu2w5NxPuIfUxtMsXWLz0IXVTId2hEhzvdkMdjab00dF736FeA');
+
+		// Create an instance of Elements.
+		var elements = stripe.elements();
+
+		// Custom styling can be passed to options when creating an Element.
+		// (Note that this demo uses a wider set of styles than the guide below.)
+		var style = {
+		  base: {
+			color: '#32325d',
+			fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+			fontSmoothing: 'antialiased',
+			fontSize: '16px',
+			'::placeholder': {
+			  color: '#aab7c4'
+			}
+		  },
+		  invalid: {
+			color: '#fa755a',
+			iconColor: '#fa755a'
+		  }
+		};
+
+		// Create an instance of the card Element.
+		var card = elements.create('card', {style: style});
+
+		// Add an instance of the card Element into the `card-element` <div>.
+		card.mount('#card-element');
+
+		// Handle real-time validation errors from the card Element.
+		card.on('change', function(event) {
+		  var displayError = document.getElementById('card-errors');
+		  if (event.error) {
+			displayError.textContent = event.error.message;
+		  } else {
+			displayError.textContent = '';
+		  }
+		});
+
+		// Handle form submission.
+		var form = document.getElementById('payment-form');
+		form.addEventListener('submit', function(event) {
+		  event.preventDefault();
+
+		  stripe.createToken(card).then(function(result) {
+			if (result.error) {
+			  // Inform the user if there was an error.
+			  var errorElement = document.getElementById('card-errors');
+			  errorElement.textContent = result.error.message;
+			} else {
+			  // Send the token to your server.
+			  stripeTokenHandler(result.token);
+			}
+		  });
+		});
+
+		// Submit the form with the token ID.
+		function stripeTokenHandler(token) {
+		  // Insert the token ID into the form so it gets submitted to the server
+		  var form = document.getElementById('payment-form');
+		  var hiddenInput = document.createElement('input');
+		  hiddenInput.setAttribute('type', 'hidden');
+		  hiddenInput.setAttribute('name', 'stripeToken');
+		  hiddenInput.setAttribute('value', token.id);
+		  form.appendChild(hiddenInput);
+
+		  // Submit the form
+		  form.submit();
+		}
+	</script>
+		
+	<div class="row justify-content-center">
+		<div class="card card-stats">
+			<div class="card-body" style="width:75rem">
+				<div class="row justify-content-center">
+					<dl class="row">
+						<dt class="col-sm-4 text-center display-3 my-6">What's Included?</dt>
+						<dd class="col-lg-8 lead my-3 nav" role="tablist">
+							<a class="active" id="trends-tab" data-toggle="tab" href="#trends" role="tab" aria-controls="trends" aria-selected="true"><button class="btn"><p>Import historical activity data in seconds</p></button></a>
+							<a id="heatmap-tab" data-toggle="tab" href="#heatmap" role="tab" aria-controls="heatmap" aria-selected="true"><button class="btn"><p>See everywhere you've run around the world in the global heatmap</p></button></a>
+							<a id="aa-tab" data-toggle="tab" href="#aa" role="tab" aria-controls="aa" aria-selected="true"><button class="btn"><p>Dive deeper into activity analytics with a 3D model, pace zones, and grade distributions</p></button></a>
+							<button class="btn"><p>Remove all ads</p></button>
+							<button class="btn"><p>... and automatic access to exclusive, new features</p></button>
+							<div class="tab-content">
+								<div class="tab-pane fade show active" id="trends" role="tabpanel" aria-labelledby="trends-tab">
+									<img src="https://github.com/sfergusond/runcrunch_img/blob/master/trends1.png?raw=true" class="shadow w-100 img-container"/>
+									<img src="https://github.com/sfergusond/runcrunch_img/blob/master/trends3.png?raw=true" class="shadow w-100 img-container"/>
+								</div>
+								<div class="tab-pane fade" id="heatmap" role="tabpanel" aria-labelledby="heatmap-tab">
+									<img src="https://github.com/sfergusond/runcrunch_img/blob/master/heatmap_big.png?raw=true" class="shadow w-100 img-container"/>
+									<img src="https://github.com/sfergusond/runcrunch_img/blob/master/presentation4.png?raw=true" class="img-container w-100 shadow"/>
+								</div>
+								<div class="tab-pane fade" id="aa" role="tabpanel" aria-labelledby="aa-tab">
+									<img src="https://github.com/sfergusond/runcrunch_img/blob/master/detail3.png?raw=true" class="shadow w-100 img-container" class="shadow w-100 img-container"/>
+									<img src="https://github.com/sfergusond/runcrunch_img/blob/master/detail7.png?raw=true" class="shadow w-100 img-container" class="shadow w-100 img-container"/>
+									<img src="https://github.com/sfergusond/runcrunch_img/blob/master/detail8.png?raw=true" class="shadow w-100 img-container" class="shadow w-100 img-container"/>
+								</div>
+							</div>
+						</dd>
+					</dl>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}

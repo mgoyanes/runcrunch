@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}RunCrunch - Thank You!{% endblock %}
+
+{% block content %}
+
+	<div class="row"></div>
+	<br>
+
+	<div class="alert alert-primary" role="alert">
+		<span class="alert-icon"><i class="ni ni-satisfied"></i></span>
+		<span class="alert-text"><strong>Thank you!</strong> You've been subscribed. You may cancel your subscription at any time from your profile page.</span>
+	</div>
+
+	<div class="row justify-content-center">
+		<a href="/dashboard"><button type="button" class="btn btn-block btn-outline-primary">Back to Dashboard</button></a>
+	</div>
+	
+{% endblock %}

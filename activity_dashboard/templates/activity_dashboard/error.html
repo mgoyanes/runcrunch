@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}RunCrunch - Dashboard{% endblock %}
+
+{% block content %}
+
+	<div class="row"></div>
+	<br>
+	
+	<div class="alert alert-warning alert-dismissible fade show" role="alert">
+		<span class="alert-icon"><i class="ni ni-ambulance"></i></span>
+		<span class="alert-text"><strong>Oops!</strong> No runs were found for your account. Please make sure you're connected to Strava.</span>
+		<span class="alert-text">If you've upgraded to a PRO account, import your runs from your profile page. Otherwise, your runs will appear here as soon as you upload to Strava.</span>
+		<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+			<span aria-hidden="true">&times;</span>
+		</button>
+	</div>
+	
+	<div class="row justify-content-center">
+		<a href="/account"><button class="btn btn-block btn-primary">Go to Profile</button></a>
+	</div>
+		
+{% endblock %}
