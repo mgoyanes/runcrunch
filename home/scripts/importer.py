@@ -29,6 +29,7 @@ def copy_to_db(activities, athlete, conn, cursor, created_at):
     csv = io.StringIO()
     polyline = activities[1]
     print('POLYLINE LENGTH:', len(polyline))
+    print('NUM RUNS:', len(activities[0]))
 
     for a in activities[0]:
         a = {k:str(v) if v != None else r'\N' for (k,v) in a.items()}
@@ -95,6 +96,7 @@ def copy_to_db(activities, athlete, conn, cursor, created_at):
         cursor.execute(sql)
         conn.commit()
     except:
+        print('IMPORT FAILED')
         cursor.close()
         conn.close()
         conn = psy.connect(os.environ['DATABASE_URL'])
@@ -109,6 +111,7 @@ def copy_to_db(activities, athlete, conn, cursor, created_at):
         mgr.copy([
                 (athlete['a_id'], polyline)
                 ])
+    except: pass
     finally:
         conn.commit()
 

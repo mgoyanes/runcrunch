@@ -18,7 +18,7 @@ def new_activity(a_id, activity_id):
     run = client.get_activity(activity_id=activity_id)
 
     # skip if activity is not a run
-    if run.type != 'Run' or run.type != 'Ride':
+    if run.type not in ['Run', 'Ride', 'Walk', 'Hike', 'Apline Ski', 'Nordic Ski']:
         return
 
     # Parse run info
