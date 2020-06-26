@@ -210,6 +210,11 @@ def privacy(request):
 
     return render(request, 'activity_dashboard/privacy.html', {'athlete': athlete})
 
+
+def announcements(request):
+    athlete = driver.get_athlete(request.user)
+    return render(request, 'activity_dashboard/announcements.html', {'athlete': athlete})
+
 def shareable(request, activity_id, key):
 
     activity = db.SELECT('activities', where=f"activity_id = {activity_id} AND shareable_key = '{key}'")

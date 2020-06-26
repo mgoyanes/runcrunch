@@ -9,5 +9,6 @@ urlpatterns = [
         path('trends', views.trends, name='trends'),
         path('error', views.error, name='error'),
         path('privacy', views.privacy, name='privacy'),
+        path('announcements', views.announcements, name='announcements'),
         #path('<int:activity_id>/edit', views.edit, name='edit')
         ]
