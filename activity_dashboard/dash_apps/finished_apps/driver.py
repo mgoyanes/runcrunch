@@ -35,7 +35,7 @@ def add_new_athlete(username, code):
 
     # Authenticate athlete
     client = stravalib.Client()
-    codes = client.exchange_code_for_token(os.environ['STRAVA_CLIENT_ID'],
+    codes = client.exchange_code_for_token(int(os.environ['STRAVA_CLIENT_ID']),
                                            os.environ['STRAVA_CLIENT_SECRET'], code)
 
     # Get athlete info from Strava

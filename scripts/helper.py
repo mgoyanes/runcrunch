@@ -19,12 +19,15 @@ def auth_url(scope=''):
 
 def auth_token(code):
     _client = stravalib.Client()
-    token = _client.exchange_code_for_token(client_id=STRAVA_CLIENT_ID, client_secret=STRAVA_CLIENT_SECRET, code=code)
+    token = _client.exchange_code_for_token(client_id=int(STRAVA_CLIENT_ID),
+                                            client_secret=STRAVA_CLIENT_SECRET, code=code)
     return token
 
 def refresh_token(token):
     _client = stravalib.Client()
-    refresh = _client.refresh_access_token(client_id=STRAVA_CLIENT_ID,  client_secret=STRAVA_CLIENT_SECRET, refresh_token=token)
+    refresh = _client.refresh_access_token(client_id=int(os.environ['STRAVA_CLIENT_ID']),
+                                           client_secret=os.environ['STRAVA_CLIENT_SECRET'],
+                                           refresh_token=token)
 
     result = {
         'access_token': refresh['access_token'],
