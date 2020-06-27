@@ -168,7 +168,7 @@ def authenticate(athlete):
 
 def refresh_token(token):
     _client = stravalib.Client()
-    refresh = _client.refresh_access_token(client_id='46859',
+    refresh = _client.refresh_access_token(client_id=os.environ['STRAVA_CLIENT_ID'],
                                            client_secret=os.environ['STRAVA_CLIENT_SECRET'],
                                            refresh_token=token)
 

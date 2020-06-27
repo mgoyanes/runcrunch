@@ -8,7 +8,7 @@ import stravalib
 import os
 from . import constants
 
-STRAVA_CLIENT_ID = constants.STRAVA_CLIENT_ID
+STRAVA_CLIENT_ID = os.environ['STRAVA_CLIENT_ID']
 STRAVA_CLIENT_SECRET = os.environ['STRAVA_CLIENT_SECRET']
 RAW_MAP = {8:r'\b', 7:r'\a', 12:r'\f', 10:r'\n', 13:r'\r', 9:r'\t', 11:r'\v'}
 

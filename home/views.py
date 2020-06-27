@@ -36,7 +36,7 @@ def register(request):
 def connect_to_strava(request):
     body = dict(request.GET.items())
     if 'activity:read' not in body['scope']:
-        return redirect("https://www.strava.com/oauth/authorize?client_id=46859&redirect_uri=https%3A%2F%2Fwww.run-crunch.com%2Fconnect-to-strava&approval_prompt=auto&response_type=code&scope=activity%3Aread%2Cactivity%3Aread_all")
+        return redirect(f"https://www.strava.com/oauth/authorize?client_id={os.environ['STRAVA_CLIENT_ID']}&redirect_uri=https%3A%2F%2Fwww.run-crunch.com%2Fconnect-to-strava&approval_prompt=auto&response_type=code&scope=activity%3Aread%2Cactivity%3Aread_all")
 
     print(dict(request.GET.items()))
     print('code:', request.GET.get('code', ''))
@@ -80,7 +80,7 @@ def account(request):
     from . import forms
 
     conn = psy.connect(os.environ['DATABASE_URL'], sslmode='prefer')
-    context = {}
+    context = {'strava_client_id': os.environ['STRAVA_CLIENT_ID']}
 
     try:
         # Load athlete info
