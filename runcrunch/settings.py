@@ -134,7 +134,7 @@ SOCIALACCOUNT_PROVIDERS = {
     },
     'strava': {
         'APP': {
-            'client_id': '46859',
+            'client_id': os.environ['STRAVA_CLIENT_ID'],
             'secret': os.environ['STRAVA_CLIENT_SECRET']
         }
     },
