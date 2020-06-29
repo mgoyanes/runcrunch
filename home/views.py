@@ -80,7 +80,7 @@ def account(request):
     from . import forms
 
     conn = psy.connect(os.environ['DATABASE_URL'], sslmode='prefer')
-    context = {'strava_client_id': os.environ['STRAVA_CLIENT_ID']}
+    context = {}
 
     try:
         # Load athlete info
@@ -112,7 +112,8 @@ def account(request):
         be_dist = 1609
         be_km = 1.609
         be_mi = 1
-        return render(request, 'home/connect_to_strava.html', {})
+        return render(request, 'home/connect_to_strava.html',
+                      {'strava_client_id': os.environ['STRAVA_CLIENT_ID']})
 
     # PR form
     pr_form = forms.PersonalRecord(request.POST)

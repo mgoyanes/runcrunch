@@ -25,14 +25,14 @@ def auth_token(code):
 
 def refresh_token(token):
     _client = stravalib.Client()
-    refresh = _client.refresh_access_token(client_id=int(os.environ['STRAVA_CLIENT_ID']),
-                                           client_secret=os.environ['STRAVA_CLIENT_SECRET'],
-                                           refresh_token=token)
-
+    refresh = _client.refresh_access_token(os.environ['STRAVA_CLIENT_ID'],
+                                           os.environ['STRAVA_CLIENT_SECRET'],
+                                           token)
     result = {
         'access_token': refresh['access_token'],
         'refresh_token': refresh['refresh_token'],
         'expires_at': refresh['expires_at']}
+    print(result)
 
     return result
 
