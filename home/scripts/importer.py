@@ -28,11 +28,13 @@ def copy_to_db(activities, athlete, conn, cursor, created_at):
     t0 = time.time()
     csv = io.StringIO()
     polyline = activities[1]
+    records = []
     print('POLYLINE LENGTH:', len(polyline))
     print('NUM RUNS:', len(activities[0]))
 
     for a in activities[0]:
         a = {k:str(v) if v != None else r'\N' for (k,v) in a.items()}
+        records.append(tuple(a))
         csv.write(str(chr(31)).join([
                 a['id'],
                 str(athlete['a_id']),
@@ -67,8 +69,13 @@ def copy_to_db(activities, athlete, conn, cursor, created_at):
     conn.commit()
 
     try:
-        csv.seek(0)
-        cursor.copy_from(csv, f'{staging}', sep=str(chr(31)))
+        #csv.seek(0)
+        #cursor.copy_from(csv, f'{staging}', sep=str(chr(31)))
+        cols = ('activity_id', 'a_id', 'name', 'date', 'datetime', 'dist', 'time', 'elev',
+                'avg_hr', 'intensity', 'achievement_count', 'kudos_count', 'start_lat',
+                'start_lng', 'shareable_key')
+        mgr = CopyManager(conn, staging, cols)
+        mgr.copy(records)
         conn.commit()
         print('COPIED IN:', time.time()-t0)
 

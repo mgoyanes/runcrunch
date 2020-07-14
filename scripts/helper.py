@@ -193,7 +193,7 @@ def format_activities(runs, athlete, flatten=True, activity_type='Run'):
         r = {}
 
         # skip if activity is not a run
-        if run['type'] not in ['Run', 'Ride', 'Walk', 'Hike', 'Apline Ski', 'Nordic Ski']:
+        if run['type'] not in ['Run', 'Walk', 'Hike']:
             continue
 
         # relabelling for convenience
