@@ -103,7 +103,7 @@ def copy_to_db(activities, athlete, conn, cursor, created_at):
         conn = psy.connect(os.environ['DATABASE_URL'])
         cursor = conn.cursor()
     finally:
-        cursor.execute(f'DROP TABLE {staging}')
+        #cursor.execute(f'DROP TABLE {staging}')
         conn.commit()
         print('ACTIVITIES UPLOADED IN:', time.time()-t0)
 
