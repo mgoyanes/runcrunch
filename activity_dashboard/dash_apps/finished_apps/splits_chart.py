@@ -258,7 +258,7 @@ async def laps_barchart(streams, laps, stats, athlete, auto=True):
     fig['data'][1].update(xaxis='x2')
     fig['data'][2].update(xaxis='x2')
 
-    max_elev = max(df['elev']) + ((max(df['elev']) - min(df['elev'])) * 40)
+    max_elev = max(df['elev']) + ((max(df['elev']) - min(df['elev'])) * .4)
     if max_elev < 10:
         lpad = 20
     elif max_elev < 1000:
