@@ -215,8 +215,8 @@ def format_activities(runs, athlete, flatten=True, activity_type='Run'):
         r['achievement_count'] = run['achievement_count']
         r['kudos_count'] = run['kudos_count']
 
-        # remove string-termination chars
-        r['name'] = run['name'].replace('\'', ' ').replace('\"', ' ')
+        # remove string-termination chars and truncate
+        r['name'] = run['name'][:100].replace('\'', ' ').replace('\"', ' ')
 
         # convert date to friendly format
         t = run['start_date_local']

@@ -28,7 +28,6 @@ def copy_to_db(activities, athlete, conn, cursor, created_at):
     t0 = time.time()
     csv = io.StringIO()
     polyline = activities[1]
-    records = []
     print('POLYLINE LENGTH:', len(polyline))
     print('NUM RUNS:', len(activities[0]))
 
@@ -68,39 +67,38 @@ def copy_to_db(activities, athlete, conn, cursor, created_at):
     conn.commit()
 
     try:
-    csv.seek(0)
-    print(csv)
-    cursor.copy_from(csv, f'{staging}', sep=str(chr(31)))
-    conn.commit()
-    print('COPIED IN:', time.time()-t0)
+        csv.seek(0)
+        cursor.copy_from(csv, f'{staging}', sep=str(chr(31)))
+        conn.commit()
+        print('COPIED IN:', time.time()-t0)
 
-    sql = f'''
-    LOCK TABLE activities IN EXCLUSIVE MODE;
+        sql = f'''
+        LOCK TABLE activities IN EXCLUSIVE MODE;
 
-    INSERT INTO activities (activity_id, a_id, name, date, datetime, dist, time, elev, avg_hr, intensity, achievement_count, kudos_count, start_lat, start_lng, shareable_key)
-    SELECT {staging}.activity_id, {staging}.a_id, {staging}.name, {staging}.date, {staging}.datetime, {staging}.dist, {staging}.time, {staging}.elev, {staging}.avg_hr, {staging}.intensity, {staging}.achievement_count, {staging}.kudos_count, {staging}.start_lat, {staging}.start_lng, {staging}.shareable_key
-    FROM {staging}
-    LEFT OUTER JOIN activities ON (activities.activity_id = {staging}.activity_id)
-    WHERE activities.activity_id IS NULL;
+        INSERT INTO activities (activity_id, a_id, name, date, datetime, dist, time, elev, avg_hr, intensity, achievement_count, kudos_count, start_lat, start_lng, shareable_key)
+        SELECT {staging}.activity_id, {staging}.a_id, {staging}.name, {staging}.date, {staging}.datetime, {staging}.dist, {staging}.time, {staging}.elev, {staging}.avg_hr, {staging}.intensity, {staging}.achievement_count, {staging}.kudos_count, {staging}.start_lat, {staging}.start_lng, {staging}.shareable_key
+        FROM {staging}
+        LEFT OUTER JOIN activities ON (activities.activity_id = {staging}.activity_id)
+        WHERE activities.activity_id IS NULL;
 
-    COMMIT;'''
-    sql = f'''
-    INSERT INTO activities SELECT * FROM {staging}
-    '''
+        COMMIT;'''
+        sql = f'''
+        INSERT INTO activities SELECT * FROM {staging}
+        '''
 
-    print(sql)
-    cursor.execute(sql)
-    conn.commit()
-    '''except:
+        print(sql)
+        cursor.execute(sql)
+        conn.commit()
+    except:
         print('IMPORT FAILED')
         cursor.close()
         conn.close()
         conn = psy.connect(os.environ['DATABASE_URL'])
         cursor = conn.cursor()
-    finally:'''
-    #cursor.execute(f'DROP TABLE {staging}')
-    conn.commit()
-    print('ACTIVITIES UPLOADED IN:', time.time()-t0)
+    finally:
+        cursor.execute(f'DROP TABLE {staging}')
+        conn.commit()
+        print('ACTIVITIES UPLOADED IN:', time.time()-t0)
 
     mgr = CopyManager(conn, 'polylines', ('a_id', 'polyline'))
     try:
