@@ -352,7 +352,8 @@ def get_run_streams(client, activity_id):
             )
 
     GAP = gap.gap(raw_stream['velocity'],
-                  raw_stream['grade'])
+                  raw_stream['grade'],
+                  elev_stream=raw_stream['elev'])
 
     raw_stream['gap'] = GAP
 
@@ -391,7 +392,7 @@ def run_stats(run, athlete, metric=None, streams=None):
         v_mean = stat.mean(streams['velocity'])
         pace = velocity_to_pace(v_mean, _to=c[2])
         velocity = v_mean
-        GAP = gap.gap(streams['velocity'], streams['grade'], out='p', unit=unit)
+        GAP = gap.gap(streams['velocity'], streams['grade'], streams['elev'], out='p', unit=unit)
     except:
         pace = velocity_to_pace(run['average_speed'], _to=c[2])
         velocity = run['average_speed']

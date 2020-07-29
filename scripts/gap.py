@@ -7,27 +7,32 @@ Created on Thu May 21 20:08:03 2020
 from . import helper
 import statistics
 
-def gap_model(grade):
+def gap_model(grade, elev):
     '''
     grade: a slope grade in %
 
     returns: a pace multiplier based on the input grade
     '''
+    alt_adjust = 1.9/304.8 # 1.9% VO2 adjust per 1000 ft
     x = grade
     a = -0.00000328132
     b = 0.0014977
     c = 0.0303574
     d = 1
+    if elev < 304.8:
+        altitude = 0
+    else:
+        altitude = (alt_adjust*elev)/100
     if x == 0:
-        return 1  # normalize to zero
+        return 1 + altitude  # normalize to zero
     else:
         multiplier = (a*(x**3) + b*(x**2) + c*x + d)
 
-    return multiplier
+    return multiplier + altitude
 
-def gap(velocity_stream, grade_stream, out='vs', unit='imperial'):
-    gap_velocity = list(map(lambda g, v : gap_model(g)*v, grade_stream,
-                            velocity_stream))
+def gap(velocity_stream, grade_stream, elev_stream, out='vs', unit='imperial'):
+    gap_velocity = list(map(lambda g, v, e : gap_model(g, e)*v, grade_stream,
+                            velocity_stream, elev_stream))
 
     if out=='vs':
         return gap_velocity
@@ -64,7 +69,8 @@ def splits_GAP(streams, num_splits, unit, laps=False):
         s_paces.append(s_avg_pace)
 
         # Average gap of each lap
-        s_gap_velocity = gap(split_streams[s]['velocity'], split_streams[s]['grade'], out='vs')
+        s_gap_velocity = gap(split_streams[s]['velocity'], split_streams[s]['grade'],
+                             elev_stream=split_streams[s]['elev'], out='vs')
         s_GAP = statistics.mean(s_gap_velocity)
         s_GAPs.append(s_GAP)
 
