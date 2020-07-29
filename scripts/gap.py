@@ -13,7 +13,7 @@ def gap_model(grade, elev):
 
     returns: a pace multiplier based on the input grade
     '''
-    alt_adjust = 1.9/304.8 # 1.9% VO2 adjust per 1000 ft
+    alt_adjust = 1.75/304.8 # 1.9% VO2 adjust per 1000 ft
     x = grade
     a = -0.00000328132
     b = 0.0014977
@@ -22,7 +22,7 @@ def gap_model(grade, elev):
     if elev < 304.8:
         altitude = 0
     else:
-        altitude = (alt_adjust*elev)/100
+        altitude = (alt_adjust*(elev-304.8))/100
     if x == 0:
         return 1 + altitude  # normalize to zero
     else:
