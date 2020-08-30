@@ -102,7 +102,7 @@ def parse_run(run, athlete):
 
     info['a_id'] = athlete['a_id']
 
-    info['name'] = '\''+ run.name.replace('\'', ' ').replace('\"', ' ') + '\''
+    info['name'] = '\''+ run.name[:100].replace('\'', ' ').replace('\"', ' ') + '\''
 
     info['date'] = run.start_date_local.strftime('\'%Y-%m-%d\'')
 

@@ -72,15 +72,6 @@ def copy_to_db(activities, athlete, conn, cursor, created_at):
         conn.commit()
         print('COPIED IN:', time.time()-t0)
 
-        """sql = f'''
-        INSERT INTO activities
-        SELECT * FROM {staging}
-        WHERE NOT EXISTS (
-                SELECT activity_id
-                FROM activities
-                WHERE activities.activity_id = {staging}.activity_id
-        )
-        '''"""
         sql = f'''
         LOCK TABLE activities IN EXCLUSIVE MODE;
 
@@ -91,6 +82,9 @@ def copy_to_db(activities, athlete, conn, cursor, created_at):
         WHERE activities.activity_id IS NULL;
 
         COMMIT;'''
+        sql = f'''
+        INSERT INTO activities SELECT * FROM {staging}
+        '''
 
         print(sql)
         cursor.execute(sql)
@@ -104,7 +98,7 @@ def copy_to_db(activities, athlete, conn, cursor, created_at):
     finally:
         cursor.execute(f'DROP TABLE {staging}')
         conn.commit()
-    print('ACTIVITIES UPLOADED IN:', time.time()-t0)
+        print('ACTIVITIES UPLOADED IN:', time.time()-t0)
 
     mgr = CopyManager(conn, 'polylines', ('a_id', 'polyline'))
     try:
